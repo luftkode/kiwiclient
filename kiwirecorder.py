@@ -1428,6 +1428,10 @@ def main():
                       dest='wf_comp',
                       action='store_true', default=False,
                       help='Enable waterfall compression')
+    group.add_option('--wf-width',
+                      dest='wf_width',
+                      type='int', default=1024,
+                      help='Waterfall width (number of frequency bins), default 1024')
     group.add_option('--snr',
                       dest='snr',
                       type='int', default=0,

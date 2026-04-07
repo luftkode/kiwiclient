@@ -50,6 +50,7 @@ class KiwiWaterfallRecorder(KiwiSDRStream):
         self._type = 'W/F'
         self._freq = options.frequency
         self._zoom = options.zoom
+        self.WF_BINS = options.wf_width  # Use the configurable waterfall width
         self._freq_bins = None
         self._num_channels = 2
         self._num_skip = 2 ## skip data at the start of the WS stream with seq < 2
@@ -200,6 +201,10 @@ def main():
                       dest='station',
                       type='string', default=None,
                       help='Station ID to be appended to filename',)
+    parser.add_option('--wf-width',
+                      dest='wf_width',
+                      type='int', default=1024,
+                      help='Waterfall width (number of frequency bins), default 1024')
     parser.add_option('--log', '--log-level', '--log_level', type='choice',
                       dest='log_level', default='warn',
                       choices=['debug', 'info', 'warn', 'error', 'critical'],
