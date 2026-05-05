@@ -530,6 +530,8 @@ class KiwiWaterfallRecorder(KiwiSDRStream):
         self._wf_pass = 0
         self._p_unsorted_avg = []
         self._rows = []
+        # Set WF_BINS from options
+        self.WF_BINS = options.wf_width
         self._cmap_r = array.array('B')
         self._cmap_g = array.array('B')
         self._cmap_b = array.array('B')
@@ -576,6 +578,7 @@ class KiwiWaterfallRecorder(KiwiSDRStream):
             return
         self._set_wf_comp(self._options.wf_comp)
         self._set_wf_interp(self._options.interp)
+        self._set_wf_bins(self._options.wf_width)
         self.set_name(self._options.user)
 
         if self._options.dx_list != None:
@@ -726,7 +729,7 @@ class KiwiWaterfallRecorder(KiwiSDRStream):
             rg = 25
             runlen = 10
             fs = start
-            kpp = span/1024
+            kpp = span/self.WF_BINS
             have_run = 0
 
             i = 0
@@ -768,7 +771,7 @@ class KiwiWaterfallRecorder(KiwiSDRStream):
                 i = i+1
 
             pwr = []
-            for i in range(1024):
+            for i in range(self.WF_BINS):
                 dBm = self._p_unsorted_avg[i]
                 if i > 2 and dBm > -190:    # skip DC offset notch in first two bins and also masked & notched areas
                     pwr.append({ 'dBm':dBm, 'i':i })

@@ -423,6 +423,11 @@ class KiwiSDRStream(KiwiSDRStreamBase):
         assert((interp >= 0 and interp <= 4) or (interp >=10 and interp <= 14))
         self._send_message('SET interp=%d' % interp)
     
+    def _set_wf_bins(self, wf_bins):
+        """Set the number of waterfall bins (frequency resolution)"""
+        self._send_message('SET wf_bins=%d' % wf_bins)
+        self.WF_BINS = wf_bins
+    
     def _set_kiwi_version(self):
         if self._version_major is None or self._version_minor is None:
             return
@@ -730,7 +735,18 @@ class KiwiSDRStream(KiwiSDRStreamBase):
     def _process_wf(self, body):
         x_bin_server,flags_x_zoom_server,seq, = struct.unpack('<III', buffer(body[0:12]))
         data = body[12:]
-        #logging.info("W/F seq %d len %d" % (seq, len(data)))
+        
+        # The actual number of bins is determined by the amount of data received
+        # Each byte is one sample, so if we get 1024 bytes we have 1024 samples
+        actual_bins = len(data)
+        
+        if seq == 0:  # Log on first packet only
+            logging.info("W/F: requested %d bins, server sending %d bytes (%.0f bins)" % 
+                        (self.WF_BINS, len(data), actual_bins))
+        
+        # Update WF_BINS to match what server is actually sending
+        self.WF_BINS = actual_bins
+        
         if self._options.netcat is True:
             return self._process_waterfall_samples_raw(seq, data)
         if self._compression:
